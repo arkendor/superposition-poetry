@@ -1,0 +1,65 @@
+{
+  "title": "The Stranger",
+  "template": "I met a man from foreign lands,\nwho spoke of home and winter rain. \nHe told his tale with weathered hands;\nI knew his times of joy and pain.\n\nI watched his face, thinking of lies, \nas we met {1} that night.\nHe raised his hand before my eyes.\nI {2} to end his blight.\n\nThey asked me what that man had said\nand how I had chosen my way,\nAs for the man whose companionship I fled,\nI called him a {3} that day.",
+  "positions": [
+    {
+      "words": [
+        "at the inn",
+        "across the trenches"
+      ],
+      "weights": [
+        0.95,
+        0.05
+      ],
+      "dependsOn": []
+    },
+    {
+      "words": [
+        "passed a pint",
+        "shot his chest"
+      ],
+      "dependsOn": [
+        0
+      ],
+      "weights": [
+        [
+          0.9999,
+          0.0001
+        ],
+        [
+          0.3,
+          0.7
+        ]
+      ]
+    },
+    {
+      "words": [
+        "friend",
+        "foe"
+      ],
+      "dependsOn": [
+        0,
+        1
+      ],
+      "weights": [
+        [
+          0.9,
+          0.1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0.1,
+          0.9
+        ],
+        [
+          0.1,
+          0.9
+        ]
+      ]
+    }
+  ],
+  "author": "arkendor"
+}

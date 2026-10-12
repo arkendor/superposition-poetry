@@ -1,0 +1,1632 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   Poem in Superposition
+  </title>
+  <style>
+:root {
+  font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:#161e2b;
+  background:#fbfaf8;
+}
+* {
+  box-sizing:border-box;
+}
+body {
+  margin:0;
+}
+.wrap {
+  max-width:1450px;
+  margin:auto;
+  padding:48px 50px 70px;
+}
+h1 {
+  font:normal clamp(42px,4.7vw,68px)/1.08 Georgia,"Times New Roman",serif;
+  letter-spacing:-.055em;
+  margin:0 0 9px;
+  color:#111a29;
+}
+.layout {
+  display:grid;
+  grid-template-columns:minmax(0,1.62fr) minmax(365px,1fr);
+  gap:22px;
+  align-items:stretch;
+}
+.sheet,.side {
+  background:#fffefa;
+  border:1px solid #dcdfe4;
+  border-radius:11px;
+  box-shadow:none;
+}
+.sheet {
+  min-height:690px;
+  padding:40px 42px;
+  display:flex;
+  flex-direction:column;
+}
+.topline {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:42px;
+  color:#637590;
+  font-size:13px;
+}
+.topline span:first-child {
+  letter-spacing:.15em;
+  font-size:12px;
+  font-weight:600;
+}
+.poem {
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(25px,2.85vw,40px);
+  line-height:2.25;
+  letter-spacing:-.025em;
+  flex:1;
+  padding:1px 0 36px;
+  overflow-wrap:anywhere;
+}
+.token {
+  display:inline;
+  border:0;
+  background:#e7f1ff;
+  color:#1267c8;
+  padding:1px 7px 3px;
+  border-radius:6px;
+  font:inherit;
+  line-height:1.3;
+  cursor:pointer;
+  text-decoration:underline dotted;
+  text-underline-offset:8px;
+  text-decoration-thickness:1px;
+  transition:background .14s;
+}
+.token:hover,.token.active {
+  background:#dceaff;
+  outline:1px solid #a3c5f9;
+  outline-offset:1px;
+}
+.token.locked {
+  background:#eaf3ff;
+  color:#1268c6;
+}
+.token.impossible {
+  opacity:.5;
+}
+.side {
+  padding:31px;
+  position:sticky;
+  top:20px;
+  align-self:start;
+  min-width:0;
+}
+.side h2 {
+  font:normal 31px/1.15 Georgia,"Times New Roman",serif;
+  letter-spacing:-.04em;
+  margin:0 0 6px;
+}
+.toolbar {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:22px 0 0;
+}
+button.action {
+  border:1px solid #d1dae6;
+  border-radius:8px;
+  background:transparent;
+  color:#33445c;
+  padding:11px 17px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:550;
+}
+button.action:hover {
+  background:#f3f7fc;
+}
+.primary {
+  background:#3c74ba!important;
+  color:white!important;
+  border-color:#3c74ba!important;
+}
+.context {
+  margin-top:13px;
+  font-size:13px;
+  color:#65738b;
+  line-height:1.5;
+  border:none;
+  background:none;
+  padding:0;
+}
+.choicegrid {
+  margin-top:23px;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.opt {
+  border:1px solid #dfe5ee;
+  background:#fff;
+  border-radius:9px;
+  padding:15px 17px;
+  cursor:pointer;
+  text-align:left;
+  color:#253650;
+  min-width:0;
+}
+.opt strong {
+  font:normal 20px/1.3 Georgia,"Times New Roman",serif;
+  display:block;
+  overflow-wrap:anywhere;
+}
+.opt span {
+  display:block;
+  font-size:13px;
+  color:#72829b;
+  margin-top:5px;
+}
+.opt:hover {
+  border-color:#6e9ddc;
+  background:#f8fbff;
+}
+.opt.sel {
+  border-color:#347beb;
+  background:#eaf3ff;
+}
+.opt.forced {
+  border-color:#347beb;
+  background:#fff;
+}
+.opt:disabled {
+  opacity:.38;
+  cursor:not-allowed;
+}
+.bar {
+  height:5px;
+  border-radius:5px;
+  background:#e9edf3;
+  overflow:hidden;
+  margin-top:12px;
+}
+.bar i {
+  height:100%;
+  display:block;
+  background:#5994df;
+}
+.matrix-title {
+  margin-top:34px;
+  font:normal 22px Georgia,"Times New Roman",serif;
+  color:#172235;
+}
+.matrix-scroll {
+  overflow-x:auto;
+  margin-top:15px;
+}
+.matrix {
+  border-collapse:collapse;
+  font-size:12px;
+  width:100%;
+  table-layout:auto;
+}
+.matrix th {
+  font-weight:500;
+  color:#637790;
+  padding:10px 6px;
+  background:#f7f8fa;
+  border:1px solid #e8ebf0;
+  overflow-wrap:anywhere;
+}
+.matrix td {
+  border:1px solid #e8ebf0;
+  text-align:center;
+  height:40px;
+  padding:10px 6px;
+  color:#2067bb;
+  font-size:12px;
+  background:#f8fbff;
+}
+.matrix td.zero {
+  color:#a6b0bf;
+  background:#fcfcfd;
+}
+.side .small:empty {
+  display:none;
+}
+@media(max-width:950px) {
+  .wrap {
+    padding:27px 20px;
+  }
+  .layout {
+    grid-template-columns:1fr;
+  }
+  .side {
+    position:static;
+  }
+  .sheet {
+    min-height:430px;
+    padding:30px;
+  }
+  .poem {
+    font-size:clamp(24px,5vw,36px);
+  }
+}
+@media(max-width:500px) {
+  .wrap {
+    padding:20px 12px;
+  }
+  .sheet,.side {
+    padding:21px;
+  }
+  .choicegrid {
+    gap:8px;
+  }
+  .opt {
+    padding:12px;
+  }
+  .poem {
+    font-size:25px;
+    line-height:2.1;
+  }
+  .topline {
+    margin-bottom:23px;
+  }
+}
+.tabs {
+  display:flex;
+  gap:26px;
+  border-bottom:1px solid #dfe3e8;
+  margin:0 0 26px;
+}
+.tab {
+  background:none;
+  border:0;
+  border-bottom:2px solid transparent;
+  padding:11px 2px 13px;
+  color:#617086;
+  font:600 14px system-ui;
+  cursor:pointer;
+}
+.tab[aria-selected="true"] {
+  border-color:#2567bd;
+  color:#15385e;
+}
+.hide {
+  display:none!important;
+}
+.writer {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(330px,.95fr);
+  gap:22px;
+}
+.writer-card {
+  background:#fffefa;
+  border:1px solid #dcdfe4;
+  border-radius:11px;
+  padding:30px;
+  min-width:0;
+}
+.writer-card h2 {
+  font:normal 29px Georgia,serif;
+  margin:0 0 22px;
+}
+.writer label {
+  display:block;
+  margin:18px 0 7px;
+  color:#506179;
+  font-size:13px;
+  font-weight:600;
+}
+.writer input,.writer textarea {
+  width:100%;
+  border:1px solid #d2d9e2;
+  border-radius:6px;
+  padding:11px;
+  font:15px system-ui;
+  background:white;
+  color:#1c2634;
+}
+.writer textarea {
+  font:18px/1.65 Georgia,serif;
+  min-height:270px;
+  resize:vertical;
+}
+.writer .rowbuttons {
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+.writer .position-list {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+.writer .posbtn {
+  border:1px solid #d2dbe7;
+  border-radius:5px;
+  background:#fff;
+  padding:9px 12px;
+  cursor:pointer;
+  color:#40526a;
+}
+.writer .posbtn.selected {
+  background:#eaf2fc;
+  border-color:#5489cc;
+  color:#135ca9;
+}
+.writer .edit-matrix {
+  border-collapse:collapse;
+  width:100%;
+  font:13px system-ui;
+}
+.writer .edit-matrix th {
+  font-size:12px;
+  font-weight:500;
+  color:#63758b;
+  padding:8px 5px;
+  overflow-wrap:anywhere;
+}
+.writer .edit-matrix td {
+  padding:3px;
+}
+.writer .edit-matrix input {
+  font-size:13px;
+  padding:8px 4px;
+  text-align:center;
+  min-width:54px;
+}
+.writer .scroll {
+  overflow:auto;
+  max-height:540px;
+}
+.writer .edit-matrix th:first-child {
+  position:sticky;
+  left:0;
+  background:#fffefa;
+  z-index:1;
+  min-width:145px;
+  text-align:left;
+}
+.dep-picker {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin:18px 0 12px;
+}
+.dep-picker label {
+  margin:0!important;
+}
+.dep-picker input {
+  width:190px;
+  max-width:100%;
+  border:1px solid #d2d9e2;
+  border-radius:6px;
+  padding:9px 12px;
+  background:white;
+  color:#1c2634;
+  font:14px system-ui;
+}
+.dep-picker .dep-error {
+  color:#a13c40;
+  font-size:12px;
+  width:100%;
+}
+.writer .tablelabel {
+  margin-bottom:4px;
+}
+.writer .note {
+  font-size:12px;
+  color:#69798c;
+  margin:11px 0;
+  line-height:1.6;
+}
+.writer .warning {
+  color:#b02d36;
+}
+.writer .good {
+  color:#267049;
+}
+.writer .sectionline {
+  border-top:1px solid #e5e8ed;
+  margin-top:23px;
+  padding-top:16px;
+}
+.muted {
+  color:#67768b;
+}
+.writer #write-title {
+  font:24px Georgia,serif;
+}
+.writer .mini {
+  font:12px system-ui;
+}
+.writer .tablelabel {
+  margin:18px 0 8px;
+  color:#4c5c71;
+  font-size:13px;
+}
+@media(max-width:950px) {
+  .writer {
+    grid-template-columns:1fr;
+  }
+  .writer-card {
+    padding:24px;
+  }
+}
+.privacy-subtitle {
+  margin:7px 0 25px;
+  color:#68788b;
+  font-size:14px;
+  letter-spacing:.005em;
+}
+.heading-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+.qol-wrap {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  cursor:pointer;
+  color:#57667a;
+  font-size:13px;
+  white-space:nowrap;
+}
+.qol-wrap input {
+  position:absolute;
+  opacity:0;
+  width:1px;
+  height:1px;
+}
+.qol-track {
+  display:inline-flex;
+  align-items:center;
+  width:36px;
+  height:21px;
+  border-radius:25px;
+  background:#cbd3df;
+  padding:3px;
+  transition:background .16s;
+}
+.qol-track::after {
+  content:"";
+  width:15px;
+  height:15px;
+  background:white;
+  border-radius:50%;
+  transition:transform .16s;
+  box-shadow:0 1px 3px #0002;
+}
+.qol-wrap input:checked+.qol-track {
+  background:#3c74ba;
+}
+.qol-wrap input:checked+.qol-track::after {
+  transform:translateX(15px);
+}
+.qol-wrap input:focus-visible+.qol-track {
+  outline:2px solid #3c74ba;
+  outline-offset:3px;
+}
+.qol-note {
+  margin-top:9px;
+  color:#778496;
+  font-size:12px;
+}
+@media(max-width:560px) {
+  .heading-row {
+    align-items:flex-start;
+  }
+  .heading-row h1 {
+    font-size:38px;
+  }
+}
+
+.matrix-heading {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-top:34px;
+}
+.matrix-heading .matrix-title { margin-top:0; }
+.matrix-view {
+  display:flex;
+  border:1px solid #d1dae6;
+  border-radius:6px;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.matrix-view button {
+  padding:6px 10px;
+  border:0;
+  background:transparent;
+  color:#5b6d82;
+  font:12px system-ui;
+  cursor:pointer;
+}
+.matrix-view button + button { border-left:1px solid #d1dae6; }
+.matrix-view button[aria-pressed="true"] {
+  background:#e7f1ff;
+  color:#1267c8;
+}
+.matrix tr.current-row th,
+.matrix tr.current-row td {
+  background:#e2efff;
+}
+.matrix th.current-column,
+.matrix td.current-column {
+  background:#e2efff;
+  color:#125db0;
+}
+@media(max-width:500px) {
+  .matrix-heading { align-items:flex-start; flex-wrap:wrap; }
+}
+.reader-author {
+  margin-top:5px;
+  font-size:12px;
+  letter-spacing:normal;
+}
+.export-dialog {
+  width:min(400px,calc(100% - 32px));
+  padding:28px;
+  border:1px solid #dcdfe4;
+  border-radius:11px;
+  background:#fffefa;
+  color:#161e2b;
+}
+.export-dialog::backdrop {
+  background:#161e2b88;
+}
+.export-dialog h2 {
+  margin:0 0 20px;
+  font:normal 28px Georgia,serif;
+}
+.export-dialog label {
+  display:block;
+  margin-bottom:8px;
+  color:#506179;
+  font-size:13px;
+  font-weight:600;
+}
+.export-dialog input {
+  width:100%;
+  padding:11px;
+  border:1px solid #d2d9e2;
+  border-radius:6px;
+  font:15px system-ui;
+}
+.export-dialog .rowbuttons {
+  display:flex;
+  justify-content:flex-end;
+  gap:9px;
+  margin-top:22px;
+}
+</style>
+ </head>
+ <body>
+  <main class="wrap">
+   <div class="heading-row">
+    <h1>Poem in Superposition</h1>
+    <label class="qol-wrap" title="Hides impossible dependency combinations. Turn off to keep redundant rows for artistic storytelling.">
+     QoL
+     <input aria-label="Hide impossible dependency combinations" checked="" id="qol-toggle" type="checkbox"/>
+     <span aria-hidden="true" class="qol-track"></span>
+    </label>
+   </div>
+   <p class="privacy-subtitle">Entirely client-side. Nothing leaves your browser.</p>
+   <div class="tabs" role="tablist">
+    <button aria-selected="true" class="tab" id="read-tab">Read</button>
+    <button aria-selected="false" class="tab" id="write-tab">Write</button>
+   </div>
+   <div id="reader">
+    <div class="layout">
+     <section class="sheet">
+      <div class="topline">
+       <div><span id="reader-title">UNTITLED</span><div class="reader-author" id="reader-author" hidden></div></div>
+       <span id="state-label"></span>
+      </div>
+      <div class="poem" id="poem">
+      </div>
+      <div class="toolbar">
+       <button class="action primary" id="sample">Sample</button>
+       <button class="action" id="clear">Reset</button>
+       <button class="action" id="copy">Copy reading</button>
+      </div>
+     </section>
+     <aside class="side">
+      <h2 id="panel-title">Superposition</h2>
+      <div class="small" id="panel-intro">
+      </div>
+      <div class="context" id="context">
+      </div>
+      <div id="options">
+      </div>
+      <div id="matrix">
+      </div>
+     </aside>
+    </div>
+   </div>
+   <div class="hide writer" id="writer">
+    <section class="writer-card">
+     <h2>Write a poem</h2>
+     <label for="write-title">Title</label>
+     <input id="write-title" value="Untitled"/>
+     <label for="write-template">Poem</label>
+     <textarea id="write-template" spellcheck="false"></textarea>
+     <div class="note">
+      Use {1}, {2}, {3} for word positions. Add more positions on the right.
+     </div>
+     <div class="rowbuttons">
+      <button class="action primary" id="preview">Read poem</button>
+      <button class="action" id="save-json">Export JSON</button>
+      <button class="action" id="load-json">Import JSON</button>
+      <input accept="application/json,.json" hidden="" id="import-input" type="file"/>
+     </div>
+     <div class="note warning" id="poem-errors" role="status">
+     </div>
+    </section>
+    <section class="writer-card">
+     <h2>Words &amp; probabilities</h2>
+     <div class="position-list" id="position-list">
+     </div>
+     <div class="rowbuttons">
+      <button class="action" id="add-position">+ Add position</button>
+      <button class="action" id="remove-position">Remove position</button>
+     </div>
+     <label for="alternatives">
+      Words
+      <span id="position-heading"></span>
+     </label>
+     <input id="alternatives" placeholder="red, blue, green" spellcheck="false"/>
+     <div class="note">
+      Separate words or phrases with commas.
+     </div>
+     <div class="dep-picker" id="dependency-control">
+     </div>
+     <div class="tablelabel" id="table-label">
+     </div>
+     <div class="scroll" id="write-matrix">
+     </div>
+     <div class="rowbuttons">
+      <button class="action" id="equalize">Equal weights</button>
+     </div>
+     <div class="note" id="weight-note" role="status">
+     </div>
+     <div class="sectionline">
+      <div class="note">
+       Changes are saved in this browser automatically.
+      </div>
+     </div>
+    </section>
+   </div>
+   </main>
+   <dialog class="export-dialog" id="author-dialog" aria-labelledby="author-dialog-title">
+     <form id="author-form">
+       <h2 id="author-dialog-title">Export poem</h2>
+       <label for="export-author">Author (optional)</label>
+       <input id="export-author" autocomplete="off" placeholder="Name or pseudonym"/>
+       <div class="rowbuttons">
+         <button class="action" id="cancel-export" type="button">Cancel</button>
+         <button class="action primary" type="submit">Export JSON</button>
+       </div>
+     </form>
+   </dialog>
+   <script>
+// DOM references and the built-in example used during development.
+const $ = id => document.getElementById(id);
+// Testing default. Replace with an empty poem before public launch.
+const starter = { title: '', template: '', positions: [] };
+const clone=x=>JSON.parse(JSON.stringify(x));
+let doc=clone(starter);
+try{
+  const saved=localStorage.getItem('superposition-poem-v2');
+  if(saved)doc=JSON.parse(saved)
+}catch(e){
+}
+// Document structure and dependency indexing.
+const MAX_ROWS = 10000;
+
+class ImpossibleEvidenceError extends Error {
+  constructor() {
+    super('These selections cannot occur together.');
+    this.name = 'ImpossibleEvidenceError';
+  }
+}
+
+function depsFor(d, i){
+  const pos=d.positions[i];
+  if(Array.isArray(pos.dependsOn))return pos.dependsOn;
+  if(i===0)return [];
+  if(pos.dependsOn===-2)return Array.from({
+    length:i
+  }, (_, k)=>k);
+  if(Number.isInteger(pos.dependsOn))return [pos.dependsOn];
+  return [i-1]
+}
+function dependencies(i){
+  return depsFor(doc, i)
+}
+function rowsFor(d, i){
+  const p=d.positions[i];
+  return i===0&&!depsFor(d, i).length?[p.weights]:p.weights
+}
+function topologicalOrder(d){
+  const order=[], state=d.positions.map(()=>0);
+  function visit(i){
+    if(state[i]===1)throw Error('Circular dependencies are not allowed.');
+    if(state[i]===2)return;
+    state[i]=1;
+    for(const parent of depsFor(d, i))visit(parent);
+    state[i]=2;
+    order.push(i)
+  }
+  d.positions.forEach((_, i)=>visit(i));
+  return order
+}
+function rowCount(i, deps=dependencies(i), d=doc){
+  let n=1;
+  for(const k of deps){
+    n*=d.positions[k].words.length;
+    if(n>MAX_ROWS)throw Error('More than 10,000 matrix rows. Choose fewer dependencies.')
+  }
+  return n
+}
+function valid(document) {
+  if (!document || typeof document.title !== 'string' ||
+      typeof document.template !== 'string' ||
+      !Array.isArray(document.positions) ||
+      document.positions.length > 30) {
+    throw Error('Invalid poem');
+  }
+
+  document.positions.forEach((position, index) => {
+    const words = position.words;
+    if (!Array.isArray(words) || words.length < 1 || words.length > 20 ||
+        words.some(word => typeof word !== 'string' || !word.trim())) {
+      throw Error('Invalid words');
+    }
+    if (new Set(words.map(word => word.trim())).size !== words.length) {
+      throw Error('Duplicate words in a superposition');
+    }
+
+    const parents = depsFor(document, index);
+    if (parents.some(parent => !Number.isInteger(parent) || parent < 0 || parent >= document.positions.length) ||
+        new Set(parents).size !== parents.length) {
+      throw Error('Invalid dependency');
+    }
+
+    const expectedRows = rowCount(index, parents, document);
+    const rows = rowsFor(document, index);
+    if (!Array.isArray(rows) || rows.length !== expectedRows) {
+      throw Error('Invalid probability rows');
+    }
+    rows.forEach(row => {
+      if (!Array.isArray(row) || row.length !== words.length ||
+          row.some(weight => typeof weight !== 'number' || !Number.isFinite(weight) || weight < 0) ||
+          row.every(weight => weight === 0)) {
+        throw Error('Invalid probability values');
+      }
+    });
+  });
+  topologicalOrder(document);
+  return true;
+}
+try{
+  valid(doc)
+}catch(e){
+  doc=clone(starter)
+}
+let selected=doc.positions.map(()=>null), active=0, editAt=0;
+let matrixView="active";
+let qolEnabled=true;
+try{
+  const setting=localStorage.getItem('superposition-qol');
+  if(setting!==null)qolEnabled=setting==='true'
+}catch(e){
+}
+$('qol-toggle').checked=qolEnabled;
+$('qol-toggle').onchange=e=>{
+  qolEnabled=e.target.checked;
+  try{
+    localStorage.setItem('superposition-qol', String(qolEnabled))
+  }catch(e){
+  };
+  if(!$('writer').classList.contains('hide'))renderWriter()
+};
+function persist(){
+  try{
+    localStorage.setItem('superposition-poem-v2', JSON.stringify(doc))
+  }catch(e){
+  }
+}
+function norm(r){
+  const s=r.reduce((a, b)=>a+b, 0);
+  return r.map(v=>v/s)
+}
+function reset(){
+  selected=doc.positions.map(()=>null);
+  active=Math.max(0, Math.min(active, doc.positions.length-1))
+}
+function rowId(i, history){
+  let result=0;
+  for(const k of dependencies(i))result=result*doc.positions[k].words.length+history[k];
+  return result
+}
+function rowSelections(i, r){
+  const ds=dependencies(i), chosen={
+  };
+  for(let k=ds.length-1; k>=0; k--){
+    const dep=ds[k], count=doc.positions[dep].words.length;
+    chosen[dep]=r%count;
+    r=Math.floor(r/count)
+  }
+  return chosen
+}
+function rowLabel(i, r){
+  if(!dependencies(i).length)return 'Start';
+  return Object.entries(rowSelections(i, r)).map(([k, j])=>'{'+(+k+1)+'} '+doc.positions[k].words[j]).join(' · ')||'Any'
+}
+// Infer one position given the selected words elsewhere in the poem.
+// Eliminate unobserved variables rather than enumerate entire readings.
+// Exact conditional inference by variable elimination.
+function distribution(i){
+  const factors=[];
+  const sizes=doc.positions.map(p=>p.words.length);
+  const read=(f, assignment)=>{
+    let n=0;
+    for(const v of f.vars)n=n*sizes[v]+assignment[v];
+    return f.values[n]
+  };
+  for(let k=0; k<doc.positions.length; k++){
+    const parents=dependencies(k), vars=[...parents, k], values=[];
+    const walk=(depth, assignment)=>{
+      if(depth===vars.length){
+        const word=assignment[k], weights=rowsFor(doc, k)[rowId(k, assignment)];
+        values.push(norm(weights)[word]*(k!==i&&selected[k]!==null&&selected[k]!==word?0:1));
+        return;
+      }
+      const v=vars[depth];
+      for(let j=0; j<sizes[v]; j++){
+        assignment[v]=j;
+        walk(depth+1, assignment)
+      }
+    };
+    walk(0, []);
+    factors.push({
+      vars, values
+    });
+  }
+  const remaining=new Set(sizes.map((_, k)=>k).filter(k=>k!==i));
+  while(remaining.size){
+    // Minimize the size of the next intermediate factor, not the full state space.
+    let chosen=-1, smallest=Infinity;
+    for(const v of remaining){
+      const vars=new Set(factors.filter(f=>f.vars.includes(v)).flatMap(f=>f.vars));
+      vars.delete(v);
+      const size=[...vars].reduce((n, k)=>n*sizes[k], 1);
+      if(size<smallest){
+        smallest=size;
+        chosen=v
+      }
+    }
+    if(smallest>200000)throw Error('Dependencies are too complex to calculate');
+    const taken=factors.filter(f=>f.vars.includes(chosen));
+    const vars=[...new Set(taken.flatMap(f=>f.vars))].filter(v=>v!==chosen).sort((a, b)=>a-b);
+    const values=[], assignment={
+    };
+    const walk=(depth)=>{
+      if(depth===vars.length){
+        let total=0;
+        for(let j=0; j<sizes[chosen]; j++){
+          assignment[chosen]=j;
+          let product=1;
+          for(const f of taken)product*=read(f, assignment);
+          total+=product;
+        }
+        values.push(total);
+        return;
+      }
+      const v=vars[depth];
+      for(let j=0; j<sizes[v]; j++){
+        assignment[v]=j;
+        walk(depth+1)
+      }
+    };
+    walk(0);
+    for(let k=factors.length-1; k>=0; k--)if(factors[k].vars.includes(chosen))factors.splice(k, 1);
+    factors.push({
+      vars, values
+    });
+    remaining.delete(chosen);
+  }
+  const result=sizes[i]&&Array.from({
+    length:sizes[i]
+  }, (_, j)=>{
+    let product=1; for(const f of factors)product*=read(f, {
+      [i]:j
+    }); return product;
+  });
+  const sum=result.reduce((a, b)=>a+b, 0);
+  if (!(sum > 0)) throw new ImpossibleEvidenceError();
+  return result.map(v=>v/sum);
+}
+// Sampling and reader interactions.
+function sampleRow(row){
+  let x=Math.random()*row.reduce((a, b)=>a+b, 0);
+  for(let j=0; j<row.length; j++){
+    x-=row[j];
+    if(x<0)return j
+  }
+  return row.length-1
+}
+function make(tag, cls, content){
+  let e=document.createElement(tag);
+  if(cls)e.className=cls;
+  if(content!==undefined)e.textContent=content;
+  return e
+}
+function renderReader(){
+  const p=$('poem');
+  p.replaceChildren();
+  p.style.whiteSpace='pre-line';
+  let chunks=doc.template.split(/(\{\d+\})/g);
+  for(const chunk of chunks){
+    const m=chunk.match(/^\{(\d+)\}$/);
+    if(!m){
+      p.appendChild(make('span', '', chunk));
+      continue
+    }
+    const i=+m[1]-1;
+    if(i<0||i>=doc.positions.length){
+      p.appendChild(make('span', '', chunk));
+      continue
+    }
+    const b=make('button', 'token'+(active===i?' active':'')+(selected[i]!==null?' locked':''), selected[i]===null?'????':doc.positions[i].words[selected[i]]);
+    b.onmouseenter=()=>activate(i);
+    b.onclick=()=>activate(i);
+    p.appendChild(b)
+  }
+  $('reader-title').textContent=(doc.title||'Untitled').toUpperCase();
+  const author=typeof doc.author==='string'?doc.author.trim():'';
+  $('reader-author').textContent=author?'by '+author:'';
+  $('reader-author').hidden=!author;
+  $('state-label').textContent=selected.filter(x=>x!==null).length+' / '+selected.length+' chosen';
+  if (doc.positions.length) {
+    renderPanel();
+  } else {
+    $('panel-title').textContent = 'No superpositions';
+    $('panel-intro').textContent = '';
+    $('context').textContent = '';
+    $('options').replaceChildren();
+    $('matrix').replaceChildren();
+  }
+}
+function activate(i){
+  if(active===i)return;
+  active=i;
+  renderReader()
+}
+function reconcileLaterChoices(changedAt){
+  for(let k=0; k<selected.length; k++){
+    if(k===changedAt)continue;
+    if(selected[k]===null)continue;
+    let likelihood;
+    try{
+      likelihood=distribution(k)[selected[k]]
+    }catch(e){
+      likelihood=0
+    }
+    if(!(likelihood>1e-12))selected[k]=null;
+  }
+}
+function choose(i, j){
+  selected[i]=selected[i]===j?null:j;
+  reconcileLaterChoices(i);
+  renderReader();
+}
+// Reader sidebar and transition-matrix rendering.
+function renderPanel(){
+  const i=active, p=doc.positions[i], deps=dependencies(i);
+  $('panel-title').textContent='Superposition '+(i+1);
+  $('panel-intro').textContent='';
+  const context = deps.map(parent => selected[parent] === null
+    ? 'position ' + (parent + 1)
+    : '"' + doc.positions[parent].words[selected[parent]] + '"');
+  $('context').textContent = deps.length === 0 ? 'Initial'
+    : deps.length ? 'After ' + context.join(' · ') : 'Independent';
+  let d;
+  try{
+    d=distribution(i)
+  }catch(e){
+    d=p.words.map(()=>0);
+    $('context').textContent=e instanceof ImpossibleEvidenceError ? 'Impossible combination — reset a selection.' : e.message
+  }
+  const g=make('div', 'choicegrid');
+  p.words.forEach((word, j)=>{
+    let b=make('button', 'opt'+(selected[i]===j?' sel':d[j]>=1-1e-9?' forced':'')); b.innerHTML='<strong></strong><span></span><div class="bar"><i></i></div>'; b.querySelector('strong').textContent=word; b.querySelector('span').textContent=d.every(value=>value===0)?'—':(d[j]*100).toFixed(1)+'%'; b.querySelector('i').style.width=d[j]*100+'%'; b.disabled=d[j]===0&&selected[i]!==j; b.onclick=()=>choose(i, j); g.appendChild(b)
+  });
+  $('options').replaceChildren(g);
+  const wrap=$('matrix');
+  const heading=make('div', 'matrix-heading');
+  heading.appendChild(make('div', 'matrix-title', deps.length?'Transition matrix':'Prior distribution'));
+  const viewPicker=make('div', 'matrix-view');
+  viewPicker.setAttribute('role', 'group');
+  viewPicker.setAttribute('aria-label', 'Matrix view');
+  for(const [mode, label] of [['active', 'Active row'], ['full', 'Full matrix']]){
+    const button=make('button', '', label);
+    button.type='button';
+    button.setAttribute('aria-pressed', String(matrixView===mode));
+    button.onclick=()=>{matrixView=mode;renderPanel()};
+    viewPicker.appendChild(button);
+  }
+  heading.appendChild(viewPicker);
+  wrap.replaceChildren(heading);
+  const sc=make('div', 'matrix-scroll'), t=make('table', 'matrix'), head=make('tr');
+  head.appendChild(make('th', '', deps.length?'After':'Initial'));
+  t.appendChild(head);
+  const rows=rowsFor(doc, i);
+  // A later choice can identify the active row even when its prerequisites
+  // haven't been explicitly selected. Cache the posterior for each parent.
+  const parentProbabilities=new Map();
+  for(const parent of deps){
+    if(selected[parent]!==null){
+      parentProbabilities.set(parent, doc.positions[parent].words.map((_, j)=>Number(j===selected[parent])));
+    }else{
+      try{parentProbabilities.set(parent, distribution(parent))}
+      catch(e){parentProbabilities.set(parent, null)}
+    }
+  }
+  const ancestors=new Set();
+  function gatherParents(position){
+    for(const parent of dependencies(position)){
+      if(ancestors.has(parent))continue;
+      ancestors.add(parent);
+      gatherParents(parent)
+    }
+  }
+  gatherParents(i);
+  const forwardParentProbabilities=new Map();
+  let forwardDistribution=null;
+  const savedSelections=selected;
+  try{
+    selected=selected.map((choice, position)=>ancestors.has(position)?choice:null);
+    try{forwardDistribution=distribution(i)}
+    catch(e){forwardDistribution=null}
+    for(const parent of deps){
+      if(selected[parent]!==null){
+        forwardParentProbabilities.set(parent, doc.positions[parent].words.map((_, j)=>Number(j===selected[parent])));
+      }else{
+        try{forwardParentProbabilities.set(parent, distribution(parent))}
+        catch(e){forwardParentProbabilities.set(parent, null)}
+      }
+    }
+  }finally{
+    selected=savedSelections;
+  }
+  const columnIsHighlighted=j=>selected[i]===j || (
+    d[j]>=1-1e-9 && forwardDistribution!==null &&
+    forwardDistribution[j]<1-1e-9
+  );
+  p.words.forEach((word, j)=>{
+    head.appendChild(make('th', columnIsHighlighted(j)?'current-column':'', word));
+  });
+  const forcedRows=rows.map((_, k)=>k).filter(k=>{
+    const entries=Object.entries(rowSelections(i, k));
+    return entries.length>0 && entries.every(([h, v])=>{
+      const posterior=parentProbabilities.get(+h);
+      return posterior && posterior[v]>=1-1e-9;
+    });
+  });
+  const forcedRow=forcedRows.length===1?forcedRows[0]:null;
+  rows.forEach((r, k)=>{
+    const values=rowSelections(i, k);
+    const entries=Object.entries(values);
+    const compatible=entries.every(([h, v])=>selected[+h]===null||selected[+h]===v);
+    const fullyMatched=entries.length>0&&entries.every(([h, v])=>{
+      const posterior=forwardParentProbabilities.get(+h);
+      return posterior&&posterior[v]>=1-1e-9;
+    });
+    // A Bayesian-forced row takes precedence over the ordinary compatibility filter.
+    // Without a single forced row, retain the original Active row behavior.
+    if(matrixView==='active' && (forcedRow!==null ? k!==forcedRow : !compatible))return;
+    const tr=make('tr', fullyMatched?'current-row':'');
+    tr.appendChild(make('th', '', rowLabel(i, k)));
+    norm(r).forEach((v, j)=>{
+      const columnClass=columnIsHighlighted(j)?'current-column':'';
+      const cls=[v===0?'zero':'', columnClass].filter(Boolean).join(' ');
+      const td=make('td', cls, (v*100).toFixed(1)+'%');
+      tr.appendChild(td);
+    });
+    t.appendChild(tr);
+  });
+  sc.appendChild(t);
+  wrap.appendChild(sc)
+}
+function switchTab(which){
+  $('reader').classList.toggle('hide', which!=='read');
+  $('writer').classList.toggle('hide', which!=='write');
+  $('read-tab').setAttribute('aria-selected', String(which==='read'));
+  $('write-tab').setAttribute('aria-selected', String(which==='write'));
+  if(which==='read')renderReader();
+  else renderWriter()
+}
+$('read-tab').onclick=()=>switchTab('read');
+$('write-tab').onclick=()=>switchTab('write');
+$('preview').onclick=()=>switchTab('read');
+$('sample').onclick=()=>{
+  const path=[];
+  for(const i of topologicalOrder(doc)){
+    path[i]=sampleRow(rowsFor(doc, i)[rowId(i, path)])
+  }
+  selected=path;
+  renderReader()
+};
+$('clear').onclick=()=>{
+  reset();
+  active=0;
+  renderReader()
+};
+$('copy').onclick=async()=>{
+  const text=doc.template.replace(/\{(\d+)\}/g, (m, n)=>selected[+n-1]===null?'????':doc.positions[+n-1]?.words[selected[+n-1]]??m);
+  try{
+    await navigator.clipboard.writeText(text);
+    $('copy').textContent='Copied';
+    setTimeout(()=>$('copy').textContent='Copy reading', 1200)
+  }catch(e){
+    prompt('Copy reading', text)
+  }
+};
+// Editing: preserve authored weights when the document structure changes.
+function rebuildWeights(i){
+  const p=doc.positions[i];
+  const rows=Array.from({length:rowCount(i)}, ()=>p.words.map(()=>1));
+  p.weights=i===0&&!dependencies(i).length?rows[0]:rows
+}
+// Compute a conditional distribution from the poem before an edit. This lets us
+// marginalize deleted dependency choices using their actual probabilities.
+function priorConditional(source, position, evidence){
+  const currentDoc = doc;
+  const currentSelections = selected;
+  try{
+    doc=source;
+    selected=source.positions.map((_, k)=>Object.prototype.hasOwnProperty.call(evidence, k)?evidence[k]:null);
+    return distribution(position);
+  }finally{
+    doc=currentDoc;
+    selected=currentSelections;
+  }
+}
+
+// Dependencies use exact word identities. A new spelling is a new choice;
+// changing a spelling does not silently inherit the old choice's weight.
+function wordIndexMap(oldWords, newWords) {
+  return newWords.map(word => oldWords.indexOf(word));
+}
+
+function decodeRow(index, parents, source) {
+  const result = {};
+  for (let j = parents.length - 1; j >= 0; j--) {
+    const parent = parents[j];
+    const size = source.positions[parent].words.length;
+    result[parent] = index % size;
+    index = Math.floor(index / size);
+  }
+  return result;
+}
+
+function preserveWeights(before, position) {
+  const original = before.positions[position];
+  const current = doc.positions[position];
+  const oldParents = depsFor(before, position);
+  const newParents = dependencies(position);
+  const originalRows = rowsFor(before, position);
+  const columns = wordIndexMap(original.words, current.words);
+  const result = [];
+
+  for (let rowIndex = 0; rowIndex < rowCount(position); rowIndex++) {
+    const newChoices = decodeRow(rowIndex, newParents, doc);
+    const evidence = {};
+    let validChoices = true;
+
+    for (const [key, choice] of Object.entries(newChoices)) {
+      const parent = Number(key);
+      const oldWord = before.positions[parent].words;
+      const newWord = doc.positions[parent].words[choice];
+      const originalChoice = oldWord.indexOf(newWord);
+      if (originalChoice === -1) {
+        validChoices = false;
+        break;
+      }
+      evidence[parent] = originalChoice;
+    }
+
+    const matches = validChoices ? originalRows.filter((_, index) => {
+      const oldChoices = decodeRow(index, oldParents, before);
+      return Object.entries(evidence).every(([key, choice]) =>
+        !Object.hasOwn(oldChoices, key) || oldChoices[key] === choice);
+    }) : [];
+
+    let weights;
+    if (matches.length === 1) {
+      // Identical conditional case: keep the author's exact numeric weights.
+      weights = columns.map(index => index < 0 ? 1 : matches[0][index]);
+    } else if (matches.length > 1) {
+      // Several cases were merged; use their probabilities in the old poem.
+      try {
+        const probabilities = priorConditional(before, position, evidence);
+        weights = columns.map(index => index < 0 ? 1 : probabilities[index]);
+      } catch (error) {
+        if (!(error instanceof ImpossibleEvidenceError)) throw error;
+        // An unreachable condition has no defined distribution.
+        // Its weights are inert until the condition becomes reachable.
+        weights = current.words.map(() => 1);
+      }
+    } else {
+      weights = current.words.map(() => 1);
+    }
+
+    if (weights.every(weight => weight === 0)) weights.fill(1);
+    result.push(weights);
+  }
+
+  current.weights = position===0&&!newParents.length?result[0]:result;
+}
+
+// True if at least one positive-probability reading contains the specified earlier choices.
+// Check the dependency ancestors only; zero-weight paths are excluded.
+function possibleDependencyRow(position, row){
+  const fixed=rowSelections(position, row), needed=new Set();
+  function gather(k){
+    if(needed.has(k))return;
+    needed.add(k);
+    for(const dep of dependencies(k))gather(dep)
+  }
+  for(const k of Object.keys(fixed))gather(+k);
+  const nodes=topologicalOrder(doc).filter(k=>needed.has(k)), assignment=[];
+  let visits=0;
+  function search(index){
+    if(index===nodes.length)return true;
+    if(++visits>150000)return true;
+    // keep a row rather than incorrectly hide it
+    const k=nodes[index], deps=dependencies(k), weights=rowsFor(doc, k)[rowId(k, assignment)];
+    if(!weights)return true;
+    const allowed=Object.prototype.hasOwnProperty.call(fixed, k)?[fixed[k]]:doc.positions[k].words.map((_, j)=>j);
+    for(const j of allowed){
+      if(weights[j]>0){
+        assignment[k]=j;
+        if(search(index+1))return true
+      }
+    }
+    return false;
+  }
+  return search(0);
+}
+// Writer controls and validation.
+function renderWriter(){
+  const list=$('position-list');
+  list.replaceChildren();
+  doc.positions.forEach((p, i)=>{
+    let b=make('button', 'posbtn'+(i===editAt?' selected':''), '{'+(i+1)+'}'); b.onclick=()=>{
+      editAt=i; renderWriter()
+    }; list.appendChild(b)
+  });
+  $('write-title').value = doc.title;
+  $('write-template').value = doc.template;
+  if (doc.positions.length === 0) {
+    $('position-heading').textContent = '';
+    $('alternatives').value = '';
+    $('alternatives').disabled = true;
+    $('dependency-control').replaceChildren();
+    $('table-label').textContent = 'Add a position to begin';
+    $('write-matrix').replaceChildren();
+    $('equalize').disabled = true;
+    $('remove-position').disabled = true;
+    $('weight-note').textContent = '';
+    validateTemplate();
+    return;
+  }
+  $('alternatives').disabled = false;
+  $('equalize').disabled = false;
+  $('remove-position').disabled = false;
+  let p=doc.positions[editAt];
+  $('position-heading').textContent='{'+(editAt+1)+'}';
+  $('alternatives').value=p.words.join(', ');
+  const control=$('dependency-control');
+  control.replaceChildren();
+  if(doc.positions.length>1){
+    const label=make('label', '', 'Depends on');
+    const field=make('input');
+    field.type='text';
+    field.placeholder=editAt===0&&!dependencies(0).length?'':'e.g. 1,2';
+    field.value=dependencies(editAt).map(n=>n+1).join(',');
+    field.setAttribute('aria-label', 'Other positions, separated by commas');
+    const msg=make('div', 'dep-error');
+    const apply=()=>{
+      const raw=field.value.trim();
+      let ds=[];
+      if(raw){
+        const parts=raw.split(',').map(x=>x.trim());
+        if(parts.some(x=>!/^\d+$/.test(x))){
+          msg.textContent='Use position numbers, separated by commas.';
+          return
+        }
+        ds=parts.map(Number);
+        if(ds.some(x=>x<1||x>doc.positions.length||x===editAt+1)||new Set(ds).size!==ds.length){
+          msg.textContent='Choose distinct positions other than '+(editAt+1)+'.';
+          return
+        }
+        ds.sort((a, b)=>a-b);
+        ds=ds.map(x=>x-1)
+      }
+      try{
+        rowCount(editAt, ds);
+        const test=clone(doc);
+        test.positions[editAt].dependsOn=ds;
+        topologicalOrder(test);
+      }catch(e){
+        msg.textContent=e.message;
+        return
+      }
+      const before=clone(doc);
+      try {
+        p.dependsOn=ds;
+        preserveWeights(before, editAt);
+      } catch (error) {
+        doc=before;
+        msg.textContent=error.message;
+        return;
+      }
+      reset();
+      persist();
+      renderWriter()
+    };
+    field.onchange=apply;
+    field.onkeydown=e=>{
+      if(e.key==='Enter'){
+        e.preventDefault();
+        field.blur()
+      }
+    };
+    control.append(label, field, msg)
+  }
+  const dependenciesLabel = dependencies(editAt).map(index => '{' + (index + 1) + '}').join(', ');
+  $('table-label').textContent = dependencies(editAt).length===0 ? 'Initial probabilities'
+    : dependencies(editAt).length ? 'After ' + dependenciesLabel : 'Independent';
+  let sc=$('write-matrix');
+  sc.replaceChildren();
+  let table=make('table', 'edit-matrix'), head=make('tr');
+  head.appendChild(make('th', '', dependencies(editAt).length?'Previous':'Start'));
+  p.words.forEach(w=>head.appendChild(make('th', '', w)));
+  table.appendChild(head);
+  let rows=rowsFor(doc, editAt);
+  let hiddenRows=0;
+  rows.forEach((row, r)=>{
+    if(qolEnabled&&dependencies(editAt).length>0&&!possibleDependencyRow(editAt, r)){
+      hiddenRows++; return
+    }
+    let tr=make('tr'); tr.appendChild(make('th', '', rowLabel(editAt, r))); row.forEach((v, j)=>{
+      let td=make('td'), inp=make('input'); inp.type='number'; inp.min='0'; inp.step='any'; inp.value=v; inp.setAttribute('aria-label', 'Weight after '+rowLabel(editAt, r)+' for '+p.words[j]); inp.onchange=()=>{
+        let n=Number(inp.value); if(!Number.isFinite(n)||n<0){
+          inp.value=v; return
+        }
+        row[j]=n; if(row.every(x=>x===0)){
+          row[j]=v; inp.value=v; $('weight-note').textContent='A row cannot be all zero.'; return
+        }
+        reset(); persist(); updateWeightNote()
+      }; td.appendChild(inp); tr.appendChild(td)
+    }); table.appendChild(tr)
+  });
+  sc.appendChild(table);
+  if(hiddenRows){
+    sc.appendChild(make('div', 'qol-note', hiddenRows+' impossible '+(hiddenRows===1?'row':'rows')+' hidden · QoL on'))
+  }
+  updateWeightNote();
+  validateTemplate()
+}
+function updateWeightNote(){
+  $('weight-note').textContent='Weights are relative; each row is normalized to 100%.'
+}
+function validateTemplate(){
+  const used=[...doc.template.matchAll(/\{(\d+)\}/g)].map(m=>+m[1]);
+  const missing=doc.positions.map((_, i)=>i+1).filter(n=>!used.includes(n));
+  const invalid=used.filter(n=>n<1||n>doc.positions.length);
+  $('poem-errors').textContent=[missing.length?'Unused: '+missing.map(n=>'{'+n+'}').join(', '):'', invalid.length?'Unknown positions: '+invalid.map(n=>'{'+n+'}').join(', '):''].filter(Boolean).join(' · ')
+}
+// Form event handlers.
+$('write-title').oninput=e=>{
+  doc.title=e.target.value;
+  persist()
+};
+$('write-template').oninput=e=>{
+  doc.template=e.target.value;
+  persist();
+  validateTemplate()
+};
+$('alternatives').onchange=e=>{
+  let words=e.target.value.split(',').map(x=>x.trim()).filter(Boolean);
+  if(!words.length||words.length>20){
+    $('weight-note').textContent='Enter 1–20 words.';
+    return
+  }
+  if(new Set(words).size!==words.length){
+    $('weight-note').textContent='Each word can appear only once.';
+    return
+  }
+  let old=doc.positions[editAt].words;
+  if(JSON.stringify(words)!==JSON.stringify(old)){
+    const before=clone(doc);
+    try {
+      doc.positions[editAt].words=words;
+      preserveWeights(before, editAt);
+      for(let k=0; k<doc.positions.length; k++){
+        if(k!==editAt&&dependencies(k).includes(editAt))preserveWeights(before, k);
+      }
+      valid(doc);
+    } catch (error) {
+      doc=before;
+      $('weight-note').textContent=error.message;
+      return;
+    }
+    reset();
+    persist()
+  }
+  renderWriter()
+};
+$('add-position').onclick=()=>{
+  if(doc.positions.length>=30)return;
+  if (doc.positions.length === 0) {
+    doc.positions.push({ words: ['word A', 'word B'], weights: [1, 1] });
+  } else {
+    doc.positions.push({
+      words: ['word A', 'word B'],
+      dependsOn: doc.positions.length - 1,
+      weights: doc.positions.at(-1).words.map(() => [1, 1])
+    });
+  }
+  editAt=doc.positions.length-1;
+  doc.template+='\n{'+(editAt+1)+'}';
+  reset();
+  persist();
+  renderWriter()
+};
+$('remove-position').onclick = () => {
+  if (doc.positions.length === 0) return;
+  if (doc.positions.length === 1) {
+    doc = clone(starter);
+    editAt = 0;
+    reset();
+    persist();
+    renderWriter();
+    return;
+  }
+
+  const removed = editAt;
+  const before = clone(doc);
+  const after = clone(doc);
+  after.positions.splice(removed, 1);
+  after.template = before.template.replace(/\{(\d+)\}/g, (match, number) =>
+    +number === removed + 1 ? '' : +number > removed + 1 ? `{${+number - 1}}` : match);
+
+  const removedParents = depsFor(before, removed);
+  const oldIndex = index => index < removed ? index : index + 1;
+  const newIndex = index => index < removed ? index : index - 1;
+
+  try {
+    for (let position = 0; position < after.positions.length; position++) {
+      const original = oldIndex(position);
+      const parents = depsFor(before, original);
+      // Removing a mediator passes its parents to the affected children.
+      // This preserves an A -> B -> C dependency as A -> C.
+      const expanded = parents.includes(removed)
+        ? [...parents.filter(p => p !== removed), ...removedParents]
+        : parents;
+      const oldParents = [...new Set(expanded)].sort((a, b) => a - b);
+      const newParents = oldParents.map(newIndex);
+      after.positions[position].dependsOn = newParents;
+      rowCount(position, newParents, after);
+
+      const oldPosition = before.positions[original];
+      const oldRows = rowsFor(before, original);
+      const rows = [];
+
+      for (let row = 0; row < rowCount(position, newParents, after); row++) {
+        const choices = decodeRow(row, newParents, after);
+        const evidence = Object.fromEntries(
+          Object.entries(choices).map(([p, choice]) => [oldIndex(+p), choice]));
+        const matches = oldRows.filter((_, oldRow) => {
+          const oldChoices = decodeRow(oldRow, parents, before);
+          return Object.entries(evidence).every(([key, choice]) =>
+            !Object.hasOwn(oldChoices, key) || oldChoices[key] === choice);
+        });
+
+        let weights;
+        if (matches.length === 1) {
+          weights = [...matches[0]];
+        } else if (matches.length > 1) {
+          try {
+            weights = priorConditional(before, original, evidence);
+          } catch (error) {
+            if (!(error instanceof ImpossibleEvidenceError)) throw error;
+            // Probabilities of unreachable rows are undefined and inconsequential.
+            weights = oldPosition.words.map(() => 1);
+          }
+        } else {
+          weights = oldPosition.words.map(() => 1);
+        }
+        rows.push(weights);
+      }
+      after.positions[position].weights = position===0&&!newParents.length?rows[0]:rows;
+    }
+    valid(after);
+  } catch (error) {
+    $('poem-errors').textContent = `Could not remove position: ${error.message}`;
+    return;
+  }
+
+  doc = after;
+  editAt = Math.min(removed, doc.positions.length - 1);
+  reset();
+  persist();
+  renderWriter();
+};
+
+$('equalize').onclick=()=>{
+  rebuildWeights(editAt);
+  reset();
+  persist();
+  renderWriter()
+};
+$('save-json').onclick=()=>{
+  $('export-author').value=typeof doc.author==='string'?doc.author:'';
+  $('author-dialog').showModal();
+};
+$('cancel-export').onclick=()=>$('author-dialog').close();
+$('author-form').onsubmit=e=>{
+  e.preventDefault();
+  const author=$('export-author').value.trim();
+  if(author)doc.author=author;
+  else delete doc.author;
+  persist();
+  $('author-dialog').close();
+  const blob=new Blob([JSON.stringify(doc, null, 2)], {
+    type:'application/json'
+  }), url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url;
+  const filenamePart=value=>value.trim().replace(/[^\p{L}\p{N}._-]+/gu, '_').replace(/^_+|_+$/g, '');
+  const title=filenamePart(doc.title)||'Untitled';
+  const authorName=filenamePart(author);
+  a.download=title+(authorName?'_'+authorName:'')+'_superposition_poem.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000)
+};
+$('load-json').onclick=()=>$('import-input').click();
+$('import-input').onchange=async e=>{
+  const f=e.target.files[0];
+  if(!f)return;
+  try{
+    const parsed=JSON.parse(await f.text());
+    valid(parsed);
+    doc=parsed;
+    editAt=0;
+    active=0;
+    reset();
+    persist();
+    renderWriter()
+  }catch(err){
+    $('poem-errors').textContent='Could not import: '+err.message
+  }
+  e.target.value=''
+};
+renderReader();
+</script>
+ </body>
+</html>
+
