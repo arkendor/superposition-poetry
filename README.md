@@ -5,7 +5,7 @@ Each superposition has a list of words it can collapse into, specified by the au
 
 This gives artists another way to introduce ambiguity into language, encode multiple meanings within a single poem, and tell stories through intentionally chosen probabilities.
 
-To try it, download [superposition_poem_editor.html](superposition_poem_editor.html) and open it in your browser. You can also import [The_Stranger_arkendor_superposition_poem.json](The_Stranger_arkendor_superposition_poem.json) to explore an example.
+To try it, [use the online superposition poem editor](https://arkendor.github.io/superposition-poetry/) or download [index.html](index.html) and open it in your browser. You can also [read *The Stranger* online](https://arkendor.github.io/the-stranger-superposition-poem-showcase/) or import [its JSON](The_Stranger_arkendor_superposition_poem.json) into the editor to explore an example.
 
 ## What can you do with Superposition Poetry?
 
