@@ -21,6 +21,10 @@ Some new features of this superposition-poem system include:
 
 But honestly, do whatever you want with the format. No one should define art.
 
+## Creative Challenges
+
+If you want to test more things you can do with superpositions, explore the [Superposition Poetry Challenges list](CHALLENGES.md)! It contains challenges from simple structural experiments to literary challenges that push the boundaries of the format. 
+
 ## Community Poems
 
 None yet! If you've written a poem using this format and want it featured here, [open a GitHub issue](https://github.com/arkendor/superposition-poetry/issues/new) with a link to your poem.
