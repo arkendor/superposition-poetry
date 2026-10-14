@@ -21,6 +21,10 @@ Some new features of this superposition-poem system include:
 
 But honestly, do whatever you want with the format. No one should define art.
 
+## Community Poems
+
+None yet! If you've written a poem using this format and want it featured here, [open a GitHub issue](https://github.com/arkendor/superposition-poetry/issues/new) with a link to your poem.
+
 ## License
 
 The Superposition Poetry editor is licensed under the [MIT License](LICENSE).
