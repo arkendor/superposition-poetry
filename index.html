@@ -1051,7 +1051,7 @@ function renderPanel(){
   }
   const g=make('div', 'choicegrid');
   p.words.forEach((word, j)=>{
-    let b=make('button', 'opt'+(selected[i]===j?' sel':d[j]>=1-1e-9?' forced':'')); b.innerHTML='<strong></strong><span></span><div class="bar"><i></i></div>'; b.querySelector('strong').textContent=word; b.querySelector('span').textContent=d.every(value=>value===0)?'—':(d[j]*100).toFixed(1)+'%'; b.querySelector('i').style.width=d[j]*100+'%'; b.disabled=d[j]===0&&selected[i]!==j; b.onclick=()=>choose(i, j); g.appendChild(b)
+    let b=make('button', 'opt'+(selected[i]===j?' sel':d[j]>=1-1e-9?' forced':'')); b.innerHTML='<strong></strong><span></span><div class="bar"><i></i></div>'; b.querySelector('strong').textContent=word; b.querySelector('span').textContent=d.every(value=>value===0)?'—':(d[j]*100).toFixed(2)+'%'; b.querySelector('i').style.width=d[j]*100+'%'; b.disabled=d[j]===0&&selected[i]!==j; b.onclick=()=>choose(i, j); g.appendChild(b)
   });
   $('options').replaceChildren(g);
   const wrap=$('matrix');
@@ -1142,7 +1142,7 @@ function renderPanel(){
     norm(r).forEach((v, j)=>{
       const columnClass=columnIsHighlighted(j)?'current-column':'';
       const cls=[v===0?'zero':'', columnClass].filter(Boolean).join(' ');
-      const td=make('td', cls, (v*100).toFixed(1)+'%');
+      const td=make('td', cls, (v*100).toFixed(2)+'%');
       tr.appendChild(td);
     });
     t.appendChild(tr);
