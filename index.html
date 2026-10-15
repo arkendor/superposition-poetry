@@ -1492,7 +1492,8 @@ $('add-position').onclick=()=>{
     });
   }
   editAt=doc.positions.length-1;
-  doc.template+='\n{'+(editAt+1)+'}';
+  const marker='{'+(editAt+1)+'}';
+  if(!doc.template.includes(marker))doc.template+='\n'+marker;
   reset();
   persist();
   renderWriter()
