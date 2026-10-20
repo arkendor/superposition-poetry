@@ -94,6 +94,18 @@ h1 {
   background:#eaf3ff;
   color:#1268c6;
 }
+
+.opacity-token {
+  display:inline-grid;
+  vertical-align:middle;
+  place-items:center;
+  background:transparent;
+}
+.opacity-token .alternative {
+  grid-area:1 / 1;
+  white-space:nowrap;
+  pointer-events:none;
+}
 .token.impossible {
   opacity:.5;
 }
@@ -471,6 +483,12 @@ button.action:hover {
   justify-content:space-between;
   gap:20px;
 }
+.toggle-stack {
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  align-items:flex-end;
+}
 .qol-wrap {
   display:flex;
   align-items:center;
@@ -615,11 +633,18 @@ button.action:hover {
   <main class="wrap">
    <div class="heading-row">
     <h1>Poem in Superposition</h1>
-    <label class="qol-wrap" title="Hides impossible dependency combinations. Turn off to keep redundant rows for artistic storytelling.">
-     QoL
+    <div class="toggle-stack">
+     <label class="qol-wrap" title="Hides impossible dependency combinations. Turn off to keep redundant rows for artistic storytelling.">
+      QoL
      <input aria-label="Hide impossible dependency combinations" checked="" id="qol-toggle" type="checkbox"/>
-     <span aria-hidden="true" class="qol-track"></span>
-    </label>
+      <span aria-hidden="true" class="qol-track"></span>
+     </label>
+     <label class="qol-wrap">
+      Opacity Superpositions
+      <input aria-label="Opacity Superpositions" id="opacity-toggle" type="checkbox"/>
+      <span aria-hidden="true" class="qol-track"></span>
+     </label>
+    </div>
    </div>
    <p class="privacy-subtitle">Entirely client-side. Nothing leaves your browser.</p>
    <div class="tabs" role="tablist">
@@ -973,6 +998,16 @@ function make(tag, cls, content){
   if(content!==undefined)e.textContent=content;
   return e
 }
+let opacityEnabled=false;
+$('opacity-toggle').onchange=e=>{
+  opacityEnabled=e.target.checked;
+  renderReader();
+};
+
+// no this isn't lazy, regular percentage is the best looking formula
+function wordOpacity(probability){
+  return probability;
+}
 function renderReader(){
   const p=$('poem');
   p.replaceChildren();
@@ -989,7 +1024,19 @@ function renderReader(){
       p.appendChild(make('span', '', chunk));
       continue
     }
-    const b=make('button', 'token'+(active===i?' active':'')+(selected[i]!==null?' locked':''), selected[i]===null?'????':doc.positions[i].words[selected[i]]);
+    const unresolved=selected[i]===null;
+    const b=make('button', 'token'+(active===i?' active':'')+(!unresolved?' locked':'')+(opacityEnabled&&unresolved?' opacity-token':''), unresolved?'????':doc.positions[i].words[selected[i]]);
+    if(opacityEnabled&&unresolved){
+      b.textContent='';
+      let probabilities;
+      try{probabilities=distribution(i)}
+      catch(e){probabilities=doc.positions[i].words.map(()=>0)}
+      doc.positions[i].words.forEach((word, j)=>{
+        const alternative=make('span', 'alternative', word);
+        alternative.style.opacity=wordOpacity(probabilities[j]);
+        b.appendChild(alternative);
+      });
+    }
     b.onmouseenter=()=>activate(i);
     b.onclick=()=>activate(i);
     p.appendChild(b)
